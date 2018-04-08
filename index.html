@@ -1,0 +1,247 @@
+<html>
+<head>
+	<title>Daily task</title>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.11/angular.min.js"></script>
+	<script src="todo.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<style type="text/css">
+		body{
+			background: black;
+		}
+      #particles-js{
+      color: white;
+      height: 100%;
+      width: 100%;
+    }
+    #input{
+      
+      position: absolute;   
+      left:35%;top: 35%;    
+    }
+	
+  span.done-true{
+    color:gray;
+    font-style: italic;
+    text-decoration: line-through;
+  }
+  span[contenteditable="true"]{
+    background-color: white;
+    color:red;
+    padding: 3px;
+  }
+  #delete{
+    margin-left: 10px;
+    color: red;
+    cursor: pointer;
+  }
+  li{
+    list-style: none;
+    margin-top: 5px;
+  }
+  #taksToShow{
+    position:absolute;
+    left:32%;top: 55%;
+  }
+  #canvas
+  {
+	margin-left:10%;
+	}
+  h1{margin-left:2%;
+  font-family:comics;
+  }
+  canvas{
+    display: block;
+  }
+  </style>
+  <!-- <script type="text/javascript">
+    window.onload=function(){
+      //init canvas
+      var canvas = document.getElementById("canvas");
+      var ctx = canvas.getContext("2d");
+
+      //get dimensions for canvas
+      var w = window.innerWidth;
+      var h = window.innerHeight;
+      canvas.width=w;
+      canvas.height=h;
+
+      //snowFlakes particles
+      var mp = 55; //max particles
+
+      var particles = [];//array particles
+      for(var i =0;i<mp;i++)
+      {
+        particles.push({
+          x:Math.random()*w,
+          y:Math.random()*h,
+          r:Math.random()*6+1,
+          d:Math.random()*mp,
+        });
+      }
+      //function to deaw flakes
+      function draw(){
+        ctx.clearRect(0,0,w,h);
+        ctx.fillStyle="rgba(255,255,255,0.8)";
+        ctx.beginPath();
+        for (var index = 0; index < mp; index++) {
+          var p = particles[index];
+          ctx.moveTo(p.x,p.y);
+          ctx.arc(p.x,p.y,p.r,0,Math.PI* 2, true);
+        }
+        ctx.fill();
+        update();
+      }
+      var angle= 0;
+      //update snowfall movements
+      function update() {
+        angle+=0.01;
+        for (var index = 0; index < mp; index++) {
+          var p = particles[index];
+          p.y +=Math.cos(angle+p.d)+1+p.r/2;
+          p.x += Math.sin(angle)*2;
+
+          //send flakes back to the top when it exits screen
+          if(p.x>w+7|| p.x<=7||p.y>h){
+            if(index%3>0){
+              particles[index]= { x:Math.random()*w,y:-10,r:p.r,d:p.d};
+            }
+            else{
+              if(Math.sin(angle)>0){
+                particles[index]={ x:-7,y:Math.random()*h,r:p.r,d:p.d};
+              }
+              else{
+                particles[index]={ x:w+7,y:Math.random()*h,r:p.r,d:p.d};
+              }
+            }
+          }
+        }
+      }
+      //animation loop for every 33 ms
+      setInterval(draw,33);
+    }
+  </script> -->
+</head>
+<body ng-app="myApp">
+	
+	
+
+  <div ng-controller='TimeCtrl' id="particles-js">
+  	<canvas id="canvas" width="200" height="200"
+style="background-color:black"  class="ui-widget-content draggable">
+</canvas>
+<h1>{{ clock | date:"fullDate"}}</h1>
+  <div class = "col-sm col-md flex-first">
+      <iframe width="360" height="315" src="https://www.youtube.com/embed/II2BMr4LzcU?rel=0&amp;showinfo=0;autoplay=1" frameborder="0" allow="autoplay; encrypted-media" auto allowfullscreen></iframe>
+  </div>
+    <div id="main">
+		<div id="input">
+    <h2>Whats in your mind today?</h2>
+		<input type="text" ng-keyup="searchEnter()" ng-model="todo" placeholder="Enter a task to perform today" class="form-control" style="width:300px; display:inline; margin-right:5px" autofocus><button type="button" class="btn btn-warning" ng-click="deleteAll(oneTask.taskMsg)">DismissAll</button>
+		</div>
+		<div id="taksToShow">
+      <ul>
+        <li ng-repeat="oneTask in tasks track by $index">
+          <input type="checkbox" ng-model="oneTask.status">
+          <span contenteditable="false" ng-dblclick="contentEdit(oneTask.taskMsg)" ng-keydown="enterAgain(oneTask.taskMsg)" ng-model="oneTask.taskMsg" class="done-{{oneTask.status}}">
+            <!--if checkbox is checked then return true else return false which make our class either true or false-->
+            {{oneTask.taskMsg}}</span><span id="delete" ng-click="delete( $index)">Dismiss Task</span>
+        </li>
+      </ul>
+
+    </div>
+	</div>
+  </div>
+  
+<script>
+var canvas = document.getElementById("canvas");
+var ctx = canvas.getContext("2d");
+var radius = canvas.height / 2;
+ctx.translate(radius, radius);
+radius = radius * 0.90
+setInterval(drawClock, 1000);
+
+function drawClock() {
+  drawFace(ctx, radius);
+  drawNumbers(ctx, radius);
+  drawTime(ctx, radius);
+}
+
+function drawFace(ctx, radius) {
+  var grad;
+  ctx.beginPath();
+  ctx.arc(0, 0, radius, 0, 2*Math.PI);
+  ctx.fillStyle = 'white';
+  ctx.fill();
+  grad = ctx.createRadialGradient(0,0,radius*0.95, 0,0,radius*1.05);
+  grad.addColorStop(0, '#333');
+  grad.addColorStop(0.5, 'white');
+  grad.addColorStop(1, '#333');
+  ctx.strokeStyle = grad;
+  ctx.lineWidth = radius*0.1;
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(0, 0, radius*0.1, 0, 2*Math.PI);
+  ctx.fillStyle = '#333';
+  ctx.fill();
+}
+
+function drawNumbers(ctx, radius) {
+  var ang;
+  var num;
+  ctx.font = radius*0.15 + "px arial";
+  ctx.textBaseline="middle";
+  ctx.textAlign="center";
+  for(num = 1; num < 13; num++){
+    ang = num * Math.PI / 6;
+    ctx.rotate(ang);
+    ctx.translate(0, -radius*0.85);
+    ctx.rotate(-ang);
+    ctx.fillText(num.toString(), 0, 0);
+    ctx.rotate(ang);
+    ctx.translate(0, radius*0.85);
+    ctx.rotate(-ang);
+  }
+}
+
+function drawTime(ctx, radius){
+    var now = new Date();
+    var hour = now.getHours();
+    var minute = now.getMinutes();
+    var second = now.getSeconds();
+    //hour
+    hour=hour%12;
+    hour=(hour*Math.PI/6)+
+    (minute*Math.PI/(6*60))+
+    (second*Math.PI/(360*60));
+    drawHand(ctx, hour, radius*0.5, radius*0.07);
+    //minute
+    minute=(minute*Math.PI/30)+(second*Math.PI/(30*60));
+    drawHand(ctx, minute, radius*0.8, radius*0.07);
+    // second
+    second=(second*Math.PI/30);
+    drawHand(ctx, second, radius*0.9, radius*0.02);
+}
+
+function drawHand(ctx, pos, length, width) {
+    ctx.beginPath();
+    ctx.lineWidth = width;
+    ctx.lineCap = "round";
+    ctx.moveTo(0,0);
+    ctx.rotate(pos);
+    ctx.lineTo(0, -length);
+    ctx.stroke();
+    ctx.rotate(-pos);
+}
+</script>
+<script src="js/particles.js"></script>
+<script src="js/particles.min.js"></script>
+<script src="js/app.js"></script>
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script>
+$( function() {
+  $( ".draggable" ).draggable({containment:"parent"});
+} );
+</script>
+</body>
+</html>
