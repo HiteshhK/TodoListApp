@@ -1,0 +1,169 @@
+<html>
+<head>
+	<title>Daily task</title>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.11/angular.min.js"></script>
+	<script src="todo.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+   
+	<style type="text/css">
+		body{
+			background: black;
+		}
+      #particles-js{
+      color: white;
+      height: 100%;
+      width: 100%;
+    }
+    #input{
+      
+      position: absolute;   
+      left:35%;top: 35%;    
+    }
+	
+  span.done-true{
+    color:gray;
+    font-style: italic;
+    text-decoration: line-through;
+  }
+  span[contenteditable="true"]{
+    background-color: white;
+    color:red;
+    padding: 3px;
+  }
+  #delete{
+    margin-left: 10px;
+    color: red;
+    cursor: pointer;
+  }
+  li{
+    list-style: none;
+    margin-top: 5px;
+  }
+  #taksToShow{
+    position:absolute;
+    left:32%;top: 55%;
+  }
+  #canvas
+  {
+	margin-left:10%;}
+  h1{margin-left:2%;
+  font-family:comics;
+  }
+	</style>
+</head>
+<body ng-app="myApp">
+	
+	
+
+  <div ng-controller='TimeCtrl' id="particles-js">
+  	<canvas id="canvas" width="200" height="200"
+style="background-color:black">
+</canvas>
+<h1>{{ clock | date:"fullDate"}}</h1>
+    <div id="main">
+		<div id="input">
+    <h2>Whats in your mind today?</h2>
+		<input type="text" ng-keyup="searchEnter()" ng-model="todo" placeholder="Enter a task to perform today" class="form-control" style="width:300px; display:inline; margin-right:5px" autofocus><button type="button" class="btn btn-warning" ng-click="deleteAll(oneTask.taskMsg)">DismissAll</button>
+		</div>
+		<div id="taksToShow">
+      <ul>
+        <li ng-repeat="oneTask in tasks track by $index">
+          <input type="checkbox" ng-model="oneTask.status">
+          <span contenteditable="false" ng-dblclick="contentEdit(oneTask.taskMsg)" ng-keydown="enterAgain(oneTask.taskMsg)" ng-model="oneTask.taskMsg" class="done-{{oneTask.status}}">
+            <!--if checkbox is checked then return true else return false which make our class either true or false-->
+            {{oneTask.taskMsg}}</span><span id="delete" ng-click="delete( $index)">Dismiss Task</span>
+        </li>
+      </ul>
+
+    </div>
+	</div>
+  </div>
+  
+<script>
+var canvas = document.getElementById("canvas");
+var ctx = canvas.getContext("2d");
+var radius = canvas.height / 2;
+ctx.translate(radius, radius);
+radius = radius * 0.90
+setInterval(drawClock, 1000);
+
+function drawClock() {
+  drawFace(ctx, radius);
+  drawNumbers(ctx, radius);
+  drawTime(ctx, radius);
+}
+
+function drawFace(ctx, radius) {
+  var grad;
+  ctx.beginPath();
+  ctx.arc(0, 0, radius, 0, 2*Math.PI);
+  ctx.fillStyle = 'white';
+  ctx.fill();
+  grad = ctx.createRadialGradient(0,0,radius*0.95, 0,0,radius*1.05);
+  grad.addColorStop(0, '#333');
+  grad.addColorStop(0.5, 'white');
+  grad.addColorStop(1, '#333');
+  ctx.strokeStyle = grad;
+  ctx.lineWidth = radius*0.1;
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(0, 0, radius*0.1, 0, 2*Math.PI);
+  ctx.fillStyle = '#333';
+  ctx.fill();
+}
+
+function drawNumbers(ctx, radius) {
+  var ang;
+  var num;
+  ctx.font = radius*0.15 + "px arial";
+  ctx.textBaseline="middle";
+  ctx.textAlign="center";
+  for(num = 1; num < 13; num++){
+    ang = num * Math.PI / 6;
+    ctx.rotate(ang);
+    ctx.translate(0, -radius*0.85);
+    ctx.rotate(-ang);
+    ctx.fillText(num.toString(), 0, 0);
+    ctx.rotate(ang);
+    ctx.translate(0, radius*0.85);
+    ctx.rotate(-ang);
+  }
+}
+
+function drawTime(ctx, radius){
+    var now = new Date();
+    var hour = now.getHours();
+    var minute = now.getMinutes();
+    var second = now.getSeconds();
+    //hour
+    hour=hour%12;
+    hour=(hour*Math.PI/6)+
+    (minute*Math.PI/(6*60))+
+    (second*Math.PI/(360*60));
+    drawHand(ctx, hour, radius*0.5, radius*0.07);
+    //minute
+    minute=(minute*Math.PI/30)+(second*Math.PI/(30*60));
+    drawHand(ctx, minute, radius*0.8, radius*0.07);
+    // second
+    second=(second*Math.PI/30);
+    drawHand(ctx, second, radius*0.9, radius*0.02);
+}
+
+function drawHand(ctx, pos, length, width) {
+    ctx.beginPath();
+    ctx.lineWidth = width;
+    ctx.lineCap = "round";
+    ctx.moveTo(0,0);
+    ctx.rotate(pos);
+    ctx.lineTo(0, -length);
+    ctx.stroke();
+    ctx.rotate(-pos);
+}
+</script>
+<script src="js/particles.js"></script>
+<script src="js/particles.min.js"></script>
+<script src="js/app.js"></script> 
+
+
+</body>
+</html>
